@@ -9,11 +9,15 @@ pub mod routes;
 pub mod models;
 pub mod task_runner;
 
+// TODO: Load from environment variable
 const POSTGRES_CONNECTION_STRING: &str = "postgresql://postgres:postgres@localhost:5432/svix";
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    // TODO: Switch to logging
     println!("\n\tSvix Take-Home\n");
+
+    // Connecting to database
     println!("Connecting to database.");
     let db_pool = PgPoolOptions::new()
         .connect(POSTGRES_CONNECTION_STRING)
@@ -21,17 +25,14 @@ async fn main() -> std::io::Result<()> {
         .expect("Unable to connect to database");
     println!("Connected to database.\n");
 
+    // Spawn a thread for the Task Runner
     let runner_db = db_pool.clone();
-
     rt::spawn(async {
         let mut task_runner = TaskRunner::new(runner_db);
         task_runner.start().await;
     });
-    // thread::spawn(|| {
-    //     let task_runner = TaskRunner::new(runner_db);
-    //     task_runner.start()
-    // });
     
+    // Spawn API workers
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(db_pool.clone()))

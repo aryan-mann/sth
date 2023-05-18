@@ -1,3 +1,4 @@
+// TODO: Expand error types instead of putting everything into unknown
 pub enum SvixError {
     Unknown { message: String }
 }

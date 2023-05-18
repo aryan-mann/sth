@@ -18,6 +18,24 @@ impl TaskRunner {
     }
 
     pub async fn start(&mut self) {
+        // TODO: Fix race-condition when working with multiple runners and a single database
+        /* 
+            The following scenario is possible:
+            Task Runner A gets all valid tasks
+            Task Runner B gets all valid tasks
+            Task Runner A executes task
+            Task Runner B executes task
+
+            This can be fixed by either:
+                1. Adding both "get all tasks" and "delete tasks" into one transaction.
+                    However that would block the database during task execution
+                2. The better way is to add a state to the task object which tracks which worker is working on it
+            
+            The loop should be update to be similar to:
+                - get all relevant tasks without a worker and assign them a worker in one transaction
+                - execute all tasks
+                - update the tasks status -> delete the one's that will not be repeated & reschedule the ones being repeated, remove worker from task
+        */
         loop {
             let cur_time_utc = Utc::now();
             let max_time_checked = cur_time_utc + chrono::Duration::days(5);

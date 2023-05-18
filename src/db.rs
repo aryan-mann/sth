@@ -5,6 +5,7 @@ use sqlx::{PgPool, Row, Executor};
 
 use crate::{models::Task, common::SvixError};
 
+// Operations on the database
 pub struct DbOps;
 
 impl DbOps {

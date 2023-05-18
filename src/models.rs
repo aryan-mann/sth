@@ -8,6 +8,7 @@ use sqlx::{postgres::PgRow, FromRow, Row};
 
 use crate::common::SvixError;
 
+/* Task Type */
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum TaskType {
     Foo,
@@ -41,6 +42,7 @@ impl TryFrom<String> for TaskType {
     }
 }
 
+/* Task */
 #[derive(FromRow, Debug, Clone, Copy, Serialize)]
 pub struct Task {
     pub id: i32,
